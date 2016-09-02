@@ -1,0 +1,21 @@
+PODS:
+  - Masonry (1.0.1)
+  - ReactiveCocoa (4.2.2):
+    - Result (~> 2.0)
+  - Result (2.1.3)
+  - YYModel (1.0.4)
+
+DEPENDENCIES:
+  - Masonry
+  - ReactiveCocoa
+  - YYModel
+
+SPEC CHECKSUMS:
+  Masonry: a1a931a0d08870ed8ae415a2ea5ea68ebcac77df
+  ReactiveCocoa: 72263e7ac0770c274617ccd345e01049d0ca38ae
+  Result: 18e1a7597fbcca5923c565b40a25a98afafdee02
+  YYModel: 2a7fdd96aaa4b86a824e26d0c517de8928c04b30
+
+PODFILE CHECKSUM: 01875d42279d26074f941d721412961b05d4fc55
+
+COCOAPODS: 1.0.0
