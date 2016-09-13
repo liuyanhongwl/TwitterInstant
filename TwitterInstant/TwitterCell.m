@@ -57,6 +57,7 @@ static CGFloat const avatar_size = 24.0;
     }];
     
     _name = [[UILabel alloc] init];
+    _name.font = [UIFont boldSystemFontOfSize:17];
     [self.contentView addSubview:self.name];
     [self.name mas_makeConstraints:^(MASConstraintMaker *make) {
         make.leading.mas_equalTo(weakSelf.avatar.mas_trailing).offset(margin_s);
@@ -64,9 +65,11 @@ static CGFloat const avatar_size = 24.0;
     }];
     
     _screenName = [[UILabel alloc] init];
+    _screenName.textColor = [UIColor lightGrayColor];
     [self.contentView addSubview:self.screenName];
     [self.screenName mas_makeConstraints:^(MASConstraintMaker *make) {
         make.leading.mas_equalTo(weakSelf.name.mas_trailing).offset(margin_s);
+        make.trailing.mas_lessThanOrEqualTo(weakSelf.contentView).offset(-margin_m);
         make.centerY.mas_equalTo(weakSelf.name);
     }];
     
@@ -75,30 +78,42 @@ static CGFloat const avatar_size = 24.0;
     [self.contentView addSubview:self.text];
     [self.text mas_makeConstraints:^(MASConstraintMaker *make) {
         make.leading.mas_equalTo(weakSelf.name);
-        make.trailing.mas_lessThanOrEqualTo(weakSelf.contentView).offset(margin_m);
+        make.trailing.mas_lessThanOrEqualTo(weakSelf.contentView).offset(-margin_m);
         make.top.mas_equalTo(weakSelf.name.mas_bottom).offset(margin_s);
     }];
     
     _retweet = [UIButton buttonWithType:UIButtonTypeCustom];
+    [self.retweet setTitleColor:[UIColor lightGrayColor] forState:UIControlStateNormal];
     [self.contentView addSubview:self.retweet];
     [self.retweet mas_makeConstraints:^(MASConstraintMaker *make) {
         make.leading.mas_equalTo(weakSelf.name);
         make.top.mas_equalTo(weakSelf.text.mas_bottom).offset(margin_s);
+        make.bottom.mas_equalTo(weakSelf.contentView).offset(-margin_m);
     }];
     
     _like = [UIButton buttonWithType:UIButtonTypeCustom];
+    [self.like setTitleColor:[UIColor lightGrayColor] forState:UIControlStateNormal];
     [self.contentView addSubview:self.like];
     [self.like mas_makeConstraints:^(MASConstraintMaker *make) {
         make.leading.mas_equalTo(weakSelf.retweet.mas_trailing).offset(margin_s);
         make.centerY.mas_equalTo(weakSelf.retweet);
     }];
+    
+    [self.name setContentCompressionResistancePriority:UILayoutPriorityDefaultHigh forAxis:UILayoutConstraintAxisHorizontal];
+    [self.screenName setContentCompressionResistancePriority:UILayoutPriorityDefaultLow forAxis:UILayoutConstraintAxisHorizontal];
 }
 
 - (void)bindViewModel
-{
-    RAC(self.avatar, image) = [self.viewModel signalForLoadImage];
+{   
+    RAC(self.avatar, image) = [[RACObserve(self, viewModel) flattenMap:^RACStream *(TwitterCellModel *value) {
+        return [value signalForLoadImage];
+    }] deliverOn:[RACScheduler mainThreadScheduler]];
     
     @weakify(self)
+    
+    RAC(self.name, text) = RACObserve(self, viewModel.name);
+    RAC(self.screenName, text) = RACObserve(self, viewModel.screenName);
+    RAC(self.text, text) = RACObserve(self, viewModel.text);
     
     [RACObserve(self, viewModel.like) subscribeNext:^(NSString *like) {
         @strongify(self)
@@ -115,9 +130,9 @@ static CGFloat const avatar_size = 24.0;
 {
     _viewModel = viewModel;
     
-    self.name.text = self.viewModel.name;
-    self.screenName.text = self.viewModel.screenName;
-    self.text.text = self.viewModel.text;
+//    self.name.text = self.viewModel.name;
+//    self.screenName.text = self.viewModel.screenName;
+//    self.text.text = self.viewModel.text;
 }
 
 @end

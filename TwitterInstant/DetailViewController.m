@@ -7,6 +7,7 @@
 //
 
 #import "DetailViewController.h"
+#import "TwitterCell.h"
 
 @implementation DetailViewController
 
@@ -15,6 +16,20 @@
     [super viewDidLoad];
     
     self.view.backgroundColor = [UIColor lightGrayColor];
+}
+
+- (void)viewDidAppear:(BOOL)animated
+{
+    [super viewDidAppear:animated];
+}
+
+#pragma mark - Property
+
+- (void)setDatas:(NSArray *)datas
+{
+    _datas = datas;
+    
+    [self.tableView reloadData];
 }
 
 #pragma mark - Delegate
@@ -27,7 +42,22 @@
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    return nil;
+    TwitterCell *cell = [tableView dequeueReusableCellWithIdentifier:NSStringFromClass([TwitterCell class])];
+    if (!cell) {
+        cell = [[TwitterCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:NSStringFromClass([TwitterCell class])];
+    }
+    cell.viewModel = [self.datas objectAtIndex:indexPath.row];
+    return cell;
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    return UITableViewAutomaticDimension;
+}
+
+- (CGFloat)tableView:(UITableView *)tableView estimatedHeightForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    return UITableViewAutomaticDimension;
 }
 
 @end

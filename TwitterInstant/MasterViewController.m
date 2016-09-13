@@ -7,6 +7,8 @@
 //
 
 #import "MasterViewController.h"
+#import "DetailViewController.h"
+#import "TwitterCellModel.h"
 #import "Masonry.h"
 #import "EXTScope.h"
 #import <ReactiveCocoa/ReactiveCocoa.h>
@@ -52,7 +54,7 @@
     _accountType = [self.accountStore accountTypeWithAccountTypeIdentifier:ACAccountTypeIdentifierTwitter];
     
     @weakify(self)
-    [[[[[[[self requestAccessToTwitterSignal] then:^RACSignal *{
+    [[[[[[[[[self requestAccessToTwitterSignal] then:^RACSignal *{
         @strongify(self)
         return self.searchField.rac_textSignal;
     }] filter:^BOOL(NSString *text) {
@@ -65,18 +67,45 @@
     }] flattenMap:^RACStream *(NSDictionary *jsonD) {
         @strongify(self)
         return [self convertDictionarySignal:jsonD];
-    }] subscribeNext:^(NSArray *tweets) {
-        NSLog(@"%@", tweets);
+    }] flattenMap:^RACStream *(NSArray *twitters) {
+        @strongify(self)
+        return [self convertViewModelSignal:twitters];
+    }] deliverOn:[RACScheduler mainThreadScheduler]]
+     subscribeNext:^(NSArray *twitterViewModels) {
+        
+         @strongify(self)
+         DetailViewController *vc = [[DetailViewController alloc] init];
+         vc.datas = twitterViewModels;
+         UINavigationController *navi = [[UINavigationController alloc] initWithRootViewController:vc];
+         [self.splitViewController showDetailViewController:navi sender:nil];
+         
     } error:^(NSError *error) {
         NSLog(@"error : %@", error);
     }];
+    
+    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] init];
+    [self.view addGestureRecognizer:tap];
+    [tap.rac_gestureSignal subscribeNext:^(id x) {
+        @strongify(self)
+        [self.view endEditing:YES];
+    }];
+}
+
+- (void)viewDidAppear:(BOOL)animated
+{
+    [super viewDidAppear:animated];
 }
 
 #pragma mark - Help
 
 - (BOOL)isValidSearchText:(NSString *)text
 {
-    return text.length > 3;
+    static NSString *preText = nil;
+    if ([preText isEqualToString:text]) {
+        return NO;
+    }
+    preText = text;
+    return text.length > 3;;
 }
 
 #pragma mark - Signal
@@ -156,6 +185,26 @@
             [subscriber sendNext:results];
             [subscriber sendCompleted];
         }];
+        return nil;
+    }];
+}
+
+- (RACSignal *)convertViewModelSignal:(NSArray <TTwitter *>*)twitters
+{
+    return [RACSignal createSignal:^RACDisposable *(id<RACSubscriber> subscriber) {
+        
+        NSMutableArray *results = [NSMutableArray array];
+        RACSequence *sequence = [twitters rac_sequence];
+        [sequence.signal subscribeNext:^(TTwitter *twitter) {
+            TwitterCellModel *vm = [[TwitterCellModel alloc] initWithTwitter:twitter];
+            if (vm) {
+                [results addObject:vm];
+            }
+        } completed:^{
+            [subscriber sendNext:results];
+            [subscriber sendCompleted];
+        }];
+        
         return nil;
     }];
 }

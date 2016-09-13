@@ -31,6 +31,7 @@
     UISplitViewController *splitViewController = [[UISplitViewController alloc] init];
     splitViewController.preferredDisplayMode = UISplitViewControllerDisplayModeAllVisible;
     splitViewController.viewControllers = @[masterNavi, detailNaiv];
+    splitViewController.delegate = self;
     
     self.window.rootViewController = splitViewController;
     [self.window makeKeyAndVisible];
@@ -60,5 +61,11 @@
     // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
 }
 
+#pragma mark - UISplitViewControllerDelegate
+
+- (BOOL)splitViewController:(UISplitViewController *)splitViewController collapseSecondaryViewController:(UIViewController *)secondaryViewController ontoPrimaryViewController:(UIViewController *)primaryViewController
+{
+    return NO;
+}
 
 @end

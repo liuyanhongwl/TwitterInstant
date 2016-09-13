@@ -22,8 +22,8 @@
         _screenName = [twitter.user.screen_name copy];
         _imageUrl = [twitter.user.profile_image_url_https copy];
         _text = [twitter.text copy];
-        _retweet = [@"retweet" stringByAppendingString:twitter.retweet_count > 0 ? [NSString stringWithFormat:@"%ld", twitter.retweet_count] : @""];
-        _like = [@"like" stringByAppendingString:twitter.favorite_count > 0 ? [NSString stringWithFormat:@"%ld", twitter.favorite_count] : @""];
+        _retweet = [@"retweet " stringByAppendingString:twitter.retweet_count > 0 ? [NSString stringWithFormat:@"%ld", twitter.retweet_count] : @""];
+        _like = [@"like " stringByAppendingString:twitter.favorite_count > 0 ? [NSString stringWithFormat:@"%ld", twitter.favorite_count] : @""];
         
     }
     return self;
